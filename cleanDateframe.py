@@ -1,4 +1,7 @@
-#Shrinks the memory usage of integer values in a dataframe, and cleans out NA values
+#Shrinks the memory usage of integer values in a dataframe, and cleans out NA values. Replaces them with 0
+#can be edited to replace the NA values with something else if necessary.
+#Careful as this could lead to unintended consequences if the 0 values are averaged in.
+
 
 import pandas as pd
 
@@ -26,3 +29,12 @@ def clean_df_no_na(df):
      .pipe(shrink_ints)
      .pipe(lambda df_: df_.assign(**df_.select_dtypes('number').fillna(0)))
     )    
+
+
+def clean_df_remove_na_rows(df):
+    return (df
+     .assign(**df.select_dtypes('string').replace('', 'Missing').astype('category'),
+             **{'Garage Yr Blt': df['Garage Yr Blt'].clip(upper=df['Year Built'].max())})
+     .pipe(shrink_ints)
+     .pipe(lambda df_: df.dropna())
+    ) 
